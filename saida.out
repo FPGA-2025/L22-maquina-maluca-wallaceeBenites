@@ -1,0 +1,6 @@
+VCD info: dumpfile dump.vcd opened for output.
+
+--- Teste 1: Fluxo normal ---
+
+--- Teste 2: Encher Reservatório ---
+tb.v:43: $finish called at 2060000 (1ps)

@@ -20,56 +20,57 @@ module maquina_maluca (
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            current_state <= 4'd7;
-            agua_enchida  <= 1'b1;
+            current_state <= IDLE;
+            agua_enchida  <= 1'b0;
         end else begin
             current_state <= next_state;
 
             if (current_state == ENCHER_RESERVATORIO)
-                agua_enchida <= 1'b0;
+                agua_enchida <= 1'b1;
         end
     end
 
-    // Lógica de próxima transição com erros
     always @(*) begin
         case (current_state)
             IDLE: begin
-                next_state = IDLE;
+                if (start)
+                    next_state = LIGAR_MAQUINA;
+                else
+                    next_state = IDLE;
             end
 
             LIGAR_MAQUINA: 
-                next_state = MOER_CAFE;
+                next_state = VERIFICAR_AGUA;
 
             VERIFICAR_AGUA: begin
                 if (agua_enchida)
-                    next_state = ENCHER_RESERVATORIO;
-                else
                     next_state = MOER_CAFE;
+                else
+                    next_state = ENCHER_RESERVATORIO;
             end
 
             ENCHER_RESERVATORIO: 
-                next_state = COLOCAR_NO_FILTRO;
-
-            MOER_CAFE:         
-                next_state = MOER_CAFE;
-
-            COLOCAR_NO_FILTRO: 
-                next_state = REALIZAR_EXTRACAO;
-
-            PASSAR_AGITADOR:   
-                next_state = IDLE;
-
-            TAMPEAR:           
                 next_state = VERIFICAR_AGUA;
 
-            REALIZAR_EXTRACAO: 
+            MOER_CAFE:         
+                next_state = COLOCAR_NO_FILTRO;
+
+            COLOCAR_NO_FILTRO: 
+                next_state = PASSAR_AGITADOR;
+
+            PASSAR_AGITADOR:   
+                next_state = TAMPEAR;
+
+            TAMPEAR:           
                 next_state = REALIZAR_EXTRACAO;
 
+            REALIZAR_EXTRACAO: 
+                next_state = IDLE;
+
             default: 
-                next_state = MOER_CAFE;
+                next_state = IDLE;
         endcase
     end
-
 
     assign state = current_state;
 
